@@ -30,8 +30,6 @@ impl <'a> CalcularCutwidth <'a> {
                 if (posi_u<=i && posi_v>i)|| (posi_v<=i && posi_u>i) {//si la arista cruza el corte entre las posiciones i e i+1, incrementa el contador de cutwidth
                     corte_actual+=1;
                 }
-
-
             }
             if corte_actual>cuwi_maximo {//si el cuwi actual es mayor al cuwi maximo registrado lo que se hace es reemplazar
                 cuwi_maximo=corte_actual;

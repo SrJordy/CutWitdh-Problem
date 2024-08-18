@@ -2,51 +2,62 @@ use rfd::FileDialog;
 use crate::Cargar_Archivo::CargarArchivo;
 use crate::Heuristica::heuristica;
 use std::time::Instant;
+
 mod Cargar_Archivo;
 mod Grafo;
 mod Calcular_Cutwidth;
 mod Heuristica;
 
 fn main() {
-    //abrimos la ventana para seleccionar el archivo
-    let ventana=FileDialog::new()
+    // Abrimos la ventana para seleccionar el archivo
+    let ventana = FileDialog::new()
         .set_title("Seleccione un archivo de grafo")
-        .add_filter("Archivo de texto",&["txt"])
+        .add_filter("Archivo de texto", &["txt"])
         .pick_file()
-        .expect("Ocurrio un error al abrir el archivo");
-    //seleccionamos el archivo
-    let ruta=ventana
+        .expect("Ocurrió un error al abrir el archivo");
+
+    // Seleccionamos el archivo
+    let ruta = ventana
         .to_str()
-        .expect("Ocurrio un error al convertir la ruta a string");
+        .expect("Ocurrió un error al convertir la ruta a string");
 
-    println!("Archivo seleccionado: {}",ruta);
+    println!("Archivo seleccionado: {}", ruta);
 
-    //cargamos el archivo a un grafo
-    let grafo=CargarArchivo::Cargar(ruta).expect("Error al cargar el grafo");
+    // Cargamos el archivo a un grafo
+    let grafo = CargarArchivo::Cargar(ruta).expect("Error al cargar el grafo");
 
-    //creamos las instancias de la heuristica
-    let numero_soluciones=1000;
-    let muestra=10;
-    let heur=heuristica::new(&grafo, numero_soluciones, muestra);
+    // Creamos las instancias de la heurística
+    let numero_soluciones = 10000;
+    let muestra = 5;
+    let heur = heuristica::new(&grafo, numero_soluciones, muestra);
 
-    //medimos el tiempo de ejecucion esto es algo extra
-    let inicio=Instant::now();
+    // Medimos el tiempo de ejecución (esto es algo extra)
+    let inicio = Instant::now();
 
-    //Buscamos la mejor solucion
-    let (mejor_solu, cuwi_max, mejor_corte)=heur.mejor_solucion();
+    // Buscamos la mejor solución
+    let (mejor_solu, cuwi_max, mejor_corte, suma_de_cortes, mejor_indice) = heur.mejor_solucion();
 
-    //mostramos le mejor ordenacion que se pudo encontrar el en cuwi
-    println!("Esta es la mejor ordenacion encontrada: ");
+    // Mostramos las cantidades de soluciones en base a la muestra
+    println!("Suma de cortes para cada solución en la muestra:");
+    for (i, suma) in suma_de_cortes.iter().enumerate() {
+        println!("Solución {}: {}", i + 1, suma);
+    }
+
+    // Mostramos qué solución fue la mejor en términos de suma mínima de cortes
+    println!("\nLa mejor solución encontrada fue la solución {}.", mejor_indice + 1);
+
+    // Mostramos la mejor ordenación encontrada con el mínimo cuwi
+    println!("Ordenación correspondiente: ");
     for nodo in mejor_solu.iter() {
         print!("{}, ", nodo);
     }
     println!();
 
-    //buscamos ahora el corte con el valor maximo de cuwi
-    if let Some((u, v, tamaño_corte))=mejor_corte.iter().find(|&&(_,_,tamaño)|tamaño==cuwi_max){
-        println!("Corte de: {} entre [{},{}]",tamaño_corte,u,v);
+    // Identificamos el corte con el mayor valor de cutwidth en la mejor solución
+    if let Some((u, v, max_cuwi)) = mejor_corte.iter().max_by_key(|&&(_, _, tamaño)| tamaño) {
+        println!("Corte con mayor valor de cutwidth: {} entre [{} , {}]", max_cuwi, u, v);
     }
 
-    let tiempofin=inicio.elapsed();
-    println!("La duracion del cuwi fue de: {:.7} segundos", tiempofin.as_secs_f64());
+    let tiempofin = inicio.elapsed();
+    println!("La duración del cuwi fue de: {:.7} segundos", tiempofin.as_secs_f64());
 }
