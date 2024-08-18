@@ -29,8 +29,8 @@ fn main() {
 
     // Creamos las instancias de la heurística
     let numero_soluciones = 100; // Establecemos el número total de soluciones a generar
-    let muestra = 10; // Establecemos el tamaño de la muestra (10 soluciones por iteración)
-    let numero_iteraciones = 3; // Establecemos el número de iteraciones (nuevas combinaciones por solución)
+    let muestra = 5; // Establecemos el tamaño de la muestra (10 soluciones por iteración)
+    let numero_iteraciones = 4; // Establecemos el número de iteraciones (nuevas combinaciones por solución)
     let heur = heuristica::new(&grafo, numero_soluciones, muestra);
     // Creamos una nueva instancia de la heurística con los parámetros especificados
 
@@ -69,7 +69,7 @@ fn main() {
     // Primero mostramos todas las soluciones con su mejor resultado
     println!("\nResultados de todas las soluciones:");
     for (sol_idx, sumas_de_cortes, mejor_iteracion_indice, _) in &resultados_por_solucion {
-        println!("Solución {}: Suma de mejor iteración = {}", sol_idx + 1, sumas_de_cortes[*mejor_iteracion_indice]);
+        println!("Solución {}: Total de la mejor iteración = {}", sol_idx + 1, sumas_de_cortes[*mejor_iteracion_indice]);
     }
 
     // Mostrar la mejor solución global en términos de la suma de cortes
