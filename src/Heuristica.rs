@@ -35,38 +35,55 @@ impl<'a> heuristica<'a> {
         solucion // Retornamos el vector de soluciones generadas
     }
 
-    pub fn mejor_solucion(&self) -> (Vec<Nodo>, usize, Vec<(Nodo, Nodo, usize)>, Vec<usize>, usize) {
-        // Encuentra la mejor solución (menor cuwi) y calcula las sumas de cortes de las soluciones
-        let mut mejor_solucion = Vec::new(); // Vector para almacenar la mejor ordenación encontrada
-        let mut mejor_cuwi_sum = usize::MAX; // Inicializamos la suma mínima del cuwi como el valor más alto posible
-        let mut mejor_corte = Vec::new(); // Vector para almacenar los detalles de los cortes de la mejor solución
-        let mut suma_de_cortes = Vec::new(); // Vector para almacenar las sumas de cortes de todas las soluciones en la muestra
-        let mut mejor_indice = 0; // Para rastrear el índice de la mejor solución
+    pub fn mejor_solucion(&self, num_iteraciones: usize) -> (Vec<Nodo>, usize, Vec<(Nodo, Nodo, usize)>, Vec<(usize, Vec<usize>, usize, Vec<(Nodo, Nodo, usize)>)>) {
+        // Encuentra la mejor solución (menor cutwidth) después de realizar un número dado de iteraciones por solución
+        let mut mejor_solucion_global = Vec::new(); // Vector para almacenar la mejor ordenación encontrada globalmente
+        let mut mejor_cuwi_global = usize::MAX; // Inicializamos el cutwidth mínimo global como el valor más alto posible
+        let mut mejor_corte_global = Vec::new(); // Vector para almacenar los detalles del mejor corte de la mejor solución global
+        let mut resultados_por_solucion = Vec::new(); // Almacena los resultados de las iteraciones por solución
 
-        let solucion = self.generar_solucion(); // Generamos las soluciones aleatorias
-        let calcular_cuwi = CalcularCutwidth::new(self.grafo); // Instanciamos CalcularCutwidth para calcular el cuwi
+        let soluciones = self.generar_solucion(); // Generamos las soluciones aleatorias iniciales
+        let calcular_cuwi = CalcularCutwidth::new(self.grafo); // Instanciamos CalcularCutwidth para calcular el cutwidth
 
-        let muestra = solucion.choose_multiple(&mut rand::thread_rng(), self.tamaño_muestra);
-        // Seleccionamos una muestra aleatoria de las soluciones generadas para evaluar
+        // Iteramos sobre cada solución en la muestra
+        for (sol_idx, solucion) in soluciones.into_iter().enumerate().take(self.tamaño_muestra) {
+            let mut mejor_cuwi_iteracion = usize::MAX; // Inicializamos el mejor cutwidth para las iteraciones de esta solución
+            let mut mejor_iteracion_corte = Vec::new(); // Almacena el mejor corte para la mejor iteración de esta solución
+            let mut mejor_iteracion_indice = 0; // Almacena el índice de la mejor iteración
+            let mut sumas_de_cortes = Vec::new(); // Almacena las sumas de cortes de cada iteración
 
-        for (i,orden) in muestra.enumerate() { // Iteramos sobre cada orden en la muestra
-            let (cuwi, cortes) = calcular_cuwi.Calcular(orden);
+            // Realizamos las iteraciones y generamos nuevas combinaciones
+            for iter in 0..num_iteraciones {
+                let mut nueva_solucion = solucion.clone(); // Clonamos la solución original
+                let mut rng = rand::thread_rng();
+                let i = rng.gen_range(0..nueva_solucion.len());
+                let j = rng.gen_range(0..nueva_solucion.len());
+                nueva_solucion.swap(i, j); // Intercambiamos dos nodos aleatorios
 
-            let suma_cortes: usize = cortes.iter().map(|(_, _, size)| size).sum();
-            // Calculamos la suma de todos los cortes para esta ordenación
+                let (cuwi, cortes) = calcular_cuwi.Calcular(&nueva_solucion); // Calculamos el cutwidth de la nueva combinación
+                let suma_cortes: usize = cortes.iter().map(|(_, _, size)| size).sum(); // Calculamos la suma de cortes
+                sumas_de_cortes.push(suma_cortes); // Guardamos la suma de cortes para esta iteración
 
-            suma_de_cortes.push(suma_cortes); // Almacenamos la suma de los cortes para esta ordenación
+                // Si encontramos una mejor suma de cortes en esta iteración, actualizamos la mejor
+                if suma_cortes < mejor_cuwi_iteracion {
+                    mejor_cuwi_iteracion = suma_cortes; // Actualizamos la mejor suma de cortes para esta solución
+                    mejor_iteracion_corte = cortes.clone(); // Actualizamos los detalles del corte
+                    mejor_iteracion_indice = iter; // Guardamos el índice de la mejor iteración
+                }
 
-            if suma_cortes < mejor_cuwi_sum {
-                // Si la suma de cortes es menor que la mejor suma registrada...
-                mejor_solucion = orden.clone(); // Clonamos la mejor ordenación encontrada
-                mejor_cuwi_sum = suma_cortes; // Actualizamos la mejor suma de cortes
-                mejor_corte = cortes; // Actualizamos los detalles de los cortes
-                mejor_indice = i; // Almacena el índice de la mejor solución
+                // Si esta iteración tiene el mejor cutwidth global, la guardamos
+                if cuwi < mejor_cuwi_global {
+                    mejor_cuwi_global = cuwi;
+                    mejor_solucion_global = nueva_solucion.clone();
+                    mejor_corte_global = cortes.clone();
+                }
             }
+
+            // Guardamos los resultados de esta solución
+            resultados_por_solucion.push((sol_idx, sumas_de_cortes, mejor_iteracion_indice, mejor_iteracion_corte));
         }
 
-        // Devolvemos la mejor ordenación, la suma mínima de cortes, los detalles de los cortes y todas las sumas de cortes
-        (mejor_solucion, mejor_cuwi_sum, mejor_corte, suma_de_cortes, mejor_indice)
+        // Devolvemos la mejor solución global, el mejor cutwidth global, los detalles del corte global y los resultados por solución
+        (mejor_solucion_global, mejor_cuwi_global, mejor_corte_global, resultados_por_solucion)
     }
 }
