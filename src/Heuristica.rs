@@ -65,7 +65,7 @@ impl<'a> heuristica<'a> {
                 sumas_de_cortes.push(suma_cortes); // Guardamos la suma de cortes para esta iteración
 
                 // Si encontramos una mejor suma de cortes en esta iteración, actualizamos la mejor
-                if suma_cortes < mejor_cuwi_iteracion {
+                    if suma_cortes < mejor_cuwi_iteracion {
                     mejor_cuwi_iteracion = suma_cortes; // Actualizamos la mejor suma de cortes para esta solución
                     mejor_iteracion_corte = cortes.clone(); // Actualizamos los detalles del corte
                     mejor_iteracion_indice = iter; // Guardamos el índice de la mejor iteración
