@@ -45,6 +45,7 @@ fn main() {
 
     // Mostramos los detalles de cada solución y sus iteraciones
     for (sol_idx, sumas_de_cortes, mejor_iteracion_indice, mejor_iteracion_corte) in &resultados_por_solucion {
+
         println!("\nSolución {}:", sol_idx + 1); // Imprimimos el índice de la solución actual
         for (iter, suma) in sumas_de_cortes.iter().enumerate() {
             println!("Iteración {}: Suma de cortes = {}", iter + 1, suma); // Imprimimos la suma de cortes de cada iteración
