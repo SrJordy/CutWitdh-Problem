@@ -28,9 +28,9 @@ fn main() {
     // Si ocurre un error al cargar el grafo, mostramos un mensaje.
 
     // Creamos las instancias de la heurística, que se encargará de encontrar la mejor solución
-    let numero_soluciones = 100; // Establecemos el número total de soluciones a generar
-    let muestra = 5; // Establecemos el tamaño de la muestra, es decir, cuántas soluciones se seleccionarán por iteración
-    let numero_iteraciones = 4; // Establecemos el número de iteraciones, que corresponde a cuántas combinaciones se generarán por solución
+    let numero_soluciones = 100000; // Establecemos el número total de soluciones a generar
+    let muestra = 10; // Establecemos el tamaño de la muestra, es decir, cuántas soluciones se seleccionarán por iteración
+    let numero_iteraciones = 100; // Establecemos el número de iteraciones, que corresponde a cuántas combinaciones se generarán por solución
     let heur = heuristica::new(&grafo, numero_soluciones, muestra);
     // Creamos una nueva instancia de la heurística utilizando el grafo cargado y los parámetros especificados
 
